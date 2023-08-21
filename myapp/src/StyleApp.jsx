@@ -7,6 +7,10 @@ export const GlobalButton = styled.button`
     color:white;
     margin:0.5em;
 
+    &:disabled{
+      cursor: not-allowed;
+    };
+
     &:hover{
       box-shadow: rgba(0, 0, 0, 0.35) 0px -50px 36px -28px inset;
 

@@ -1,28 +1,39 @@
 import Cookies from 'js-cookie'
-import React from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
-import { useLogoutMutation } from '../../features/api/userApi';
+import { useGetUserDataQuery, useLogoutMutation, useUpdateUserDataMutation } from '../../features/api/userApi';
 import { GlobalButton } from '../../StyleApp';
 import UnAuthorized from '../home/UnAuthorized';
+import { Link } from 'react-router-dom';
+import UpdateData from './UpdateData';
+import { toast } from "react-toastify";
+import {BiHome} from 'react-icons/bi'
+import Loader from './Loader';
+
+
 
 
 export const ProfileConatiner=styled.div`
 width:80%;
 // min-height:25em;
 margin:5% auto;
-border:1px solid lightgrey;
+// border:1px solid lightgrey;
 font-size:16px;
 border-radius:1rem;
+// position:relative;
 
 
 .custom-table{
-    width:100%;
+    width:80%;
+    margin:3% auto;
+    
     overflow: auto;
         border-collapse: collapse;
         
 
         thead {
             background-color: #f2f2f2;
+           
             
           };
 
@@ -61,6 +72,7 @@ border-radius:1rem;
        .table-cell td{
         padding: 10px;
         border: 1px solid #ccc;
+        text-transform:capitalize;
           };
     
 }
@@ -68,51 +80,99 @@ border-radius:1rem;
 
 function Profile() {
     const token = Cookies.get('authToken')
+    const uidToken = Cookies.get('uid')
     const[logout] = useLogoutMutation()
+
+    const handleDelete=()=>{
+      toast("deleted data successfully",
+      {
+          type:'danger'
+      })
+    }
 
     const handleLogout = async () => {
         try {
           await logout();
           console.log('Logged out successfully.');
-          // You can navigate to the login page or perform any other action after logout
+          toast('Successfully Logged out', {
+            type: 'success',
+          });
         } catch (error) {
           console.error('Error logging out:', error);
         }
       };
+      
+      
+      console.log('UID Token:', uidToken); 
+      // const docPath = `user/${uidToken}`;
+      // console.log('Document Path:', docPath);
 
+
+      const { data: userData, error: userDataError, isLoading } = useGetUserDataQuery(uidToken)
+
+      // console.log('userData:', userData)
+      // console.log('userDataError:', userDataError)
+      // console.log('isLoading:', isLoading)
+
+// const[updateUserData] = useUpdateUserDataMutation(uidToken)
+     
+const[display , setDisplay] = useState(false)
   return (
     <>
-    {token ?
-     <ProfileConatiner>
-     <table className='custom-table'>
-<thead>
- <tr>
-     <th>ID</th>
-     <th>Author</th>
-     <th>Title</th>
-     <th>Date</th>
-     <th>Actions</th>
- </tr>
-</thead>
-<tbody>
+    {token ? (
+        <ProfileConatiner>
+         
+          {isLoading && (
+            <Loader/>
+          ) }
 
- <tr className='table-cell'   >
-     <td>1</td>
-     <td>kk</td>
-     <td>kmk</td>
-     <td>12.0.23</td>
-     <td>
-        <button >Edit</button>
-         <button >Delete</button>
-     </td>
- </tr>
-   
-</tbody>
-</table>
-<GlobalButton onClick={handleLogout}>Logout</GlobalButton>
- </ProfileConatiner> :
-<UnAuthorized/>
-}
+          {
+            userData &&
+            <>
+            <Link className='main-nav-link' to='/'><BiHome/></Link>
+            <Link className='main-nav-link' onClick={handleLogout} style={{right:'3em'}}>Signout</Link>
+              <table className="custom-table">
+              <thead>
+            <tr>
+              <th>First Name</th>
+              <th>Last Name</th>
+              <th>Gender</th>
+              <th>About</th>
+              <th>Location</th>
+              <th>Interests</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+                <tbody>
+                  
+                 
+                  <tr key={userData?.id} className="table-cell">
+                  <td>{userData?.firstName}</td>
+                  <td>{userData?.lastName}</td>
+                  <td>{userData?.gender}</td>
+                  <td>{userData?.about}</td>
+                  <td>{userData?.location}</td>
+                  <td>{userData?.interests.join(', ')}</td>
+                  <td>
+                    <button onClick={()=>setDisplay(true)}>Edit</button>
+                    <button onClick={handleDelete}>Delete</button>
+                  </td>
+                </tr>
+               
+                    
+                 
+                </tbody>
+              </table>
+              {/* <GlobalButton onClick={handleLogout}>Logout</GlobalButton> */}
+
+              {display && userData && <UpdateData data={userData} setDisplay={setDisplay} />}
+            </>
+        
+           }
+        </ProfileConatiner>
+      ) : (
+        <UnAuthorized />
+      )}
 </>
    
   )

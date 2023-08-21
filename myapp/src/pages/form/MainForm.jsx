@@ -4,6 +4,8 @@ import Step1 from './Step1';
 import Step2 from './Step2';
 import { Link } from 'react-router-dom';
 import {BiHome} from 'react-icons/bi'
+import Cookies from 'js-cookie'
+import { toast } from "react-toastify";
 
 export const MainFormConatiner=styled.div`
 width:50%;
@@ -45,7 +47,15 @@ function MainForm() {
       [name]: value,
     });
   };
+
+  const token = Cookies.get('authToken')
   return (
+    <>
+    {token ? <>
+    <lottie-player src='https://lottie.host/ec2e826c-aad6-4b6a-a1d7-ff6ba934054a/nB31EcTfxk.json' background='#fff' speed='1' style={{width: '300px', height: '150px', margin:'auto'}} loop  autoplay direction='1' mode='normal'></lottie-player>
+    <Link  to='/profile'> You are Already Logged in . GoTo Profile</Link> 
+    </>
+    :
     <MainFormConatiner>
       {step === 1 && (
         <Step1 formData={formData} handleChange={handleChange} nextStep={nextStep} />
@@ -56,6 +66,8 @@ function MainForm() {
       <Link className='main-nav-link' to='/'><BiHome/></Link>
     
     </MainFormConatiner>
+      }
+      </>
   )
 }
 

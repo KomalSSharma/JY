@@ -102,44 +102,7 @@ const Step2 = ({ formData, handleChange, prevStep }) => {
     setPreviewOpen(false);
   };
 
-  const [register] = useRegisterMutation()
-
-//   const handleRegister =async()=>{
-//     const{email , password} = formData
-//   if(email && password)
-//   {
-//     await register(formData)
-//     console.log(formData)
-//     navigate('/profile')
-// }
-
-// }
-
-
-
-
-// const handleRegister = async () => {
-//   if (email && password) {
-//     try {
-//       const result = await register(formData);
-//       console.log('data of result', result); 
-
-//       if (result.data) {
-//         console.log('Registration successful:', result.data);
-//         console.log(result.data)
-//         navigate('/profile');
-//       } else {
-//         console.log('Registration failed:', result.error);
-       
-//       }
-//     } catch (error) {
-//       console.error('Error during registration:', error);
-     
-//     }
-//   } else {
-//     alert('Please fill in all required fields.');
-//   }
-// };
+  const [register , { isError, error , isLoading }] = useRegisterMutation()
 
 
 const handleRegister = async () => {
@@ -148,19 +111,19 @@ const handleRegister = async () => {
       const result = await register(formData);
       console.log("Register result:", result);
 
-      if ('data' in result) {
+      if ('data' in result && result.data !== undefined) {
         console.log('Registration successful:', result.data);
         navigate('/profile');
       } else if ('error' in result) {
         console.log('Registration failed:', result.error);
-        // Display an error message to the user
       }
     } catch (error) {
       console.error('Error during registration:', error);
-      // Display an error message to the user
+      // alert(error)
     }
   } else {
-    alert('Please fill in all required fields.');
+    console.log('Please fill in all required fields.')
+    // alert('Please fill in all required fields.');
   }
 };
 
@@ -265,12 +228,13 @@ const handleRegister = async () => {
         }
       />
       </div>
-      <GlobalButton onClick={prevStep}>Back</GlobalButton>
-      <GlobalButton onClick={openPreview}>Preview</GlobalButton>
+      <GlobalButton onClick={prevStep} disabled={isLoading}>Back</GlobalButton>
+      <GlobalButton onClick={openPreview} disabled={isLoading}>Preview</GlobalButton>
       {/* <Link to='/preview'>Preview</Link> */}
-      <GlobalButton onClick={handleRegister}>Submit</GlobalButton>
-    
+      <GlobalButton onClick={handleRegister}>{isLoading ? 'Wait' : 'Submit'}</GlobalButton>
+      {isError && <div>Error: {error.message}</div>}
     </StepTwoContainer>
+    
 
 {isPreviewOpen && (
   <Preview formData={formData} prevStep={closePreview} />

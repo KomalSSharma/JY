@@ -7,6 +7,7 @@ import { StepOneContainer } from './Step1';
 import styled from 'styled-components'
 import {BiHome} from 'react-icons/bi'
 import Cookies from 'js-cookie'
+import { toast } from "react-toastify";
 
 export const LoginContainer=styled.div`
 width: 60%;
@@ -18,7 +19,7 @@ position:relative;
 
 function Login() {
 
-    const [login, { isError, error }] = useLoginMutation();
+    const [login, { isError, error , isLoading }] = useLoginMutation();
     const navigate = useNavigate()
    
 
@@ -39,18 +40,6 @@ function Login() {
   };
 
 
-//   const handleSubmit = async(e) => {
-//     // debugger;
-//     e.preventDefault();
-//     const{email , password} = formValue
-//     if(email && password){
-//         await login(formValue)
-//         console.log(formValue)
-//         navigate('/profile')
-//     }
-//     setFormValue(initialState);
-    
-//   };
 
 
 
@@ -64,10 +53,14 @@ const handleSubmit = async (e) => {
         .unwrap() 
         .then(() => {
           console.log('Login successful');
+          toast('Login successfully', {
+            type: 'success',
+          });
           navigate('/profile');
         })
         .catch((err) => {
           console.error('Login error:', err);
+          // alert(err)
         });
     }
     setFormValue(initialState);
@@ -79,13 +72,17 @@ const handleSubmit = async (e) => {
 
   return (
     <>
-    {token ? <Link  to='/profile'> You are Already Logged in . GoTo Profile</Link> 
+    {token ? 
+    <>
+    <lottie-player src='https://lottie.host/ec2e826c-aad6-4b6a-a1d7-ff6ba934054a/nB31EcTfxk.json' background='#fff' speed='1' style={{width: '300px', height: '150px', margin:'auto'}} loop  autoplay direction='1' mode='normal'></lottie-player>
+    <Link  to='/profile'> You are Already Logged in . GoTo Profile</Link> 
+    </>
     :
     <LoginContainer>
     <Link className='main-nav-link' to='/'><BiHome/></Link>
 <StepOneContainer>
 
-    <h2>Login</h2>
+    <h2>{isLoading ? 'Wait' : 'Login'}</h2>
   <form onSubmit={handleSubmit}>
 
   <div className='step-one-item'>
@@ -114,7 +111,7 @@ onChange={handleChange}
 
     </div>
 
-    <GlobalButton type='submit'>Submit</GlobalButton>
+    <GlobalButton type='submit'>{isLoading ? 'Wait' : 'Submit'}</GlobalButton>
     
 
   </form>
